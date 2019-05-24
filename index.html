@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>An Hour Timer</title>
+  <style>
+    html,
+    body {
+      height: 400px;
+      width: 600px;
+      background: #eee;
+      overflow: hidden;
+      font-family: 'Segoe UI Light', 'Segoe UI', Tahoma, Helvetica, Sans-Serif;
+    }
+
+    .row {
+      width: 100%;
+      display: flex;
+    }
+
+    #left,
+    #right {
+      width: 50%;
+	  height: 100%;
+    }
+    
+    li {
+      display: inline-block;
+      font-size: 1em;
+      list-style-type: none;
+      padding: 0.5em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    li span {
+      display: block;
+      font-size: 2.5rem;
+    }
+
+    a#setTimerBtn {
+      background: #eee;
+      border: 2px solid #ccc;
+      border-radius: 45px;
+      width: 100px;
+      text-align: center;
+      padding: 0.5em;
+      margin: 10px auto;
+      display: block;
+      color: #888;
+      text-decoration: none;
+      font-weight: 400;
+      transition: 0.5s;
+      text-shadow: 0 0 2px #aaa;
+    }
+
+    a#setTimerBtn:hover {
+      background: #ddd;
+    }
+    
+    a#setTimerBtn:disabled {
+      background: #888;
+      color: #eee;
+    }
+
+    .clock {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 25px auto;
+      position: relative;
+      padding: 0.5rem;
+      -webkit-box-shadow: 0 10px 15px rgba(104, 75, 106, 0.65);
+      -moz-box-shadow: 0 10px 15px rgba(104, 75, 106, 0.65);
+      box-shadow: 0 10px 15px rgba(104, 75, 106, 0.65);
+      background: #5f535f;
+    }
+
+    .dialogue-box {
+      border-radius: 5px;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin: 15px 50px 0 0;
+    }
+
+    .profile {
+      height: 100%;
+      max-height: 300px;
+      position: relative;
+    }
+    .profile img {
+      width: 70%;
+      margin: 15px 0 0 30px;
+      overflow: hidden;
+    }
+
+    .outer-clock-face {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 100%;
+      background: #fefefc;
+      -webkit-box-shadow: 0 10px 5px rgba(62, 47, 63, 0.45);
+      -moz-box-shadow: 0 10px 5px rgba(62, 47, 63, 0.45);
+      box-shadow: 0 10px 5px rgba(62, 47, 63, 0.45);
+      overflow: hidden;
+    }
+
+    .outer-clock-face::after {
+      -webkit-transform: rotate(90deg);
+      -moz-transform: rotate(90deg);
+      transform: rotate(90deg)
+    }
+
+    .outer-clock-face::before,
+    .outer-clock-face::after,
+    .outer-clock-face .marking {
+      content: '';
+      position: absolute;
+      width: 3px;
+      height: 100%;
+      background: #b8b8c5;
+      z-index: 0;
+      left: 49%;
+    }
+
+    .outer-clock-face .marking {
+      background: #bdbdcb;
+      width: 1px;
+    }
+
+    .outer-clock-face .marking.marking-one {
+      -webkit-transform: rotate(30deg);
+      -moz-transform: rotate(30deg);
+      transform: rotate(30deg)
+    }
+
+    .outer-clock-face .marking.marking-two {
+      -webkit-transform: rotate(60deg);
+      -moz-transform: rotate(60deg);
+      transform: rotate(60deg)
+    }
+
+    .outer-clock-face .marking.marking-three {
+      -webkit-transform: rotate(120deg);
+      -moz-transform: rotate(120deg);
+      transform: rotate(120deg)
+    }
+
+    .outer-clock-face .marking.marking-four {
+      -webkit-transform: rotate(150deg);
+      -moz-transform: rotate(150deg);
+      transform: rotate(150deg)
+    }
+
+    .inner-clock-face {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      width: 80%;
+      height: 80%;
+      background: #fefefc;
+      -webkit-border-radius: 100%;
+      -moz-border-radius: 100%;
+      border-radius: 100%;
+      z-index: 1;
+    }
+
+    .inner-clock-face::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 8px;
+      margin-left: -4px;
+      margin-top: -4px;
+      background: #4d4b63;
+      z-index: 11;
+    }
+
+    .hand {
+      width: 50%;
+      right: 50%;
+      height: 6px;
+      background: #555;
+      position: absolute;
+      top: 47%;
+      border-radius: 6px;
+      transform-origin: 100%;
+      transform: rotate(90deg);
+      transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
+    }
+
+    .hand.hour-hand {
+      width: 20%;
+      z-index: 3;
+    }
+
+    .hand.min-hand {
+      height: 3px;
+      z-index: 10;
+      background: #999;
+      width: 50%;
+    }
+
+    .hand.second-hand {
+      height: 2px;
+      background: #ccc;
+      width: 40%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="row">
+    <div id="left">
+      <div class="clock">
+        <div class="outer-clock-face">
+          <div class="marking marking-one"></div>
+          <div class="marking marking-two"></div>
+          <div class="marking marking-three"></div>
+          <div class="marking marking-four"></div>
+          <div class="inner-clock-face">
+            <div class="hand hour-hand"></div>
+            <div class="hand min-hand"></div>
+            <div class="hand second-hand"></div>
+          </div>
+        </div>
+      </div>
+      <div class="timer">
+        <div class="row">
+          <ul>
+            <li><span id="hours">01</span>Hours</li>
+            <li><span id="minutes">00</span>Minutes</li>
+            <li><span id="seconds">00</span>Seconds</li>
+          </ul>
+        </div>
+        <a href="#" id="setTimerBtn">Start Timer</a>
+      </div>
+    </div>
+
+    <div id="right">
+      <div class="dialogue-box">
+        <span id="dialogue-text"></span>
+      </div>
+      <div class="profile">
+        <img src="img/icon2.png">
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
